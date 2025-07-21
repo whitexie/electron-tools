@@ -1,0 +1,45 @@
+{
+  "name": "nuxt-app",
+  "type": "module",
+  "private": true,
+  "packageManager": "pnpm@10.13.1",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "build:static": "nuxt generate",
+    "lint": "eslint . --fix",
+    "serve:static": "npx serve .output/public",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "typecheck": "vue-tsc --noEmit"
+  },
+  "dependencies": {
+    "@nuxt/icon": "catalog:",
+    "@nuxt/ui": "catalog:",
+    "@nuxtjs/color-mode": "catalog:",
+    "@tailwindcss/vite": "catalog:",
+    "eslint": "catalog:",
+    "fflate": "catalog:",
+    "nuxt": "catalog:",
+    "tailwindcss": "catalog:",
+    "typescript": "catalog:",
+    "vue": "catalog:",
+    "vue-router": "catalog:"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "catalog:",
+    "@eslint/config-array": "catalog:",
+    "@nuxt/eslint": "catalog:",
+    "@testing-library/vue": "catalog:",
+    "@vitejs/plugin-vue": "catalog:",
+    "@vitest/ui": "catalog:",
+    "jsdom": "catalog:",
+    "nuxt-eslint-auto-explicit-import": "catalog:",
+    "vitest": "catalog:",
+    "vue-tsc": "catalog:"
+  }
+}
