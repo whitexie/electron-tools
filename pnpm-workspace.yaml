@@ -9,7 +9,8 @@ catalog:
   '@testing-library/vue': ^8.1.0
   '@vitejs/plugin-vue': ^6.0.0
   '@vitest/ui': ^3.2.4
-  eslint: ^9.31.0
+  '@vue/test-utils': ^2.4.6
+  eslint: 'catalog:'
   fflate: ^0.8.2
   jsdom: ^26.1.0
   nuxt: ^4.0.0
