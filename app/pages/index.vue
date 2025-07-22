@@ -20,9 +20,9 @@ function backToIntro() {
 </script>
 
 <template>
-  <div class="min-h-screen">
+  <div>
     <!-- 介绍页面 -->
-    <div v-if="showIntro" class="min-h-screen flex flex-col">
+    <div v-if="showIntro">
       <!-- 英雄区域 -->
       <section
         class="flex-1 relative overflow-hidden bg-gradient-to-b from-blue-50 to-white dark:from-gray-900 dark:to-gray-950 py-16 md:py-24"
@@ -208,7 +208,7 @@ function backToIntro() {
       </div>
 
       <!-- 转换器主体 -->
-      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div class="max-w-6xl mx-auto sm:px-6 lg:px-8 p-4">
         <div class="bg-white dark:bg-gray-900 rounded-xl shadow-lg overflow-hidden">
           <IconConverterMain />
         </div>

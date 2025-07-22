@@ -11,7 +11,7 @@ export default defineAppConfig({
       neutral: 'zinc',
     },
     notifications: {
-      position: 'top-right',
+      // position: 'top-right',
     },
   },
 })
