@@ -84,7 +84,7 @@ function resetState() {
           轻松将您的图片转换为 Windows, macOS, 和 Linux 应用图标。
         </p>
         <div class="max-w-2xl mx-auto mt-10">
-          <FileUploadZone @file-uploaded="handleFileUpload" />
+          <FileUploadZone accept="image/png,image/jpeg,image/svg+xml,image/webp" @file-uploaded="handleFileUpload" />
         </div>
         <UAlert
           v-if="conversionError" icon="i-heroicons-x-circle" color="error" variant="soft" :title="conversionError"

@@ -1,8 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
+defineProps<{
+  accept: string
+}>()
+
 const emit = defineEmits(['fileUploaded'])
 const isDragging = ref(false)
+const fileInputRef = useTemplateRef('file-input')
 
 function handleDrop(event: DragEvent) {
   isDragging.value = false
@@ -21,8 +26,9 @@ function handleFileInput(event: Event) {
 }
 
 function triggerFileInput() {
-  const input = document.getElementById('file-input') as HTMLInputElement
-  input?.click()
+  if (fileInputRef.value) {
+    fileInputRef.value.click()
+  }
 }
 </script>
 
@@ -44,6 +50,10 @@ function triggerFileInput() {
         支持 PNG, JPG, SVG, 或 WebP 格式
       </p>
     </div>
-    <input id="file-input" type="file" class="hidden" @change="handleFileInput">
+    <input
+      ref="file-input"
+      type="file" :accept
+      class="hidden" @change="handleFileInput"
+    >
   </div>
 </template>
