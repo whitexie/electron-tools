@@ -89,7 +89,7 @@ function resetState() {
         <UAlert
           v-if="conversionError"
           icon="i-heroicons-x-circle"
-          color="red"
+          color="error"
           variant="soft"
           :title="conversionError"
           class="mt-6 max-w-2xl mx-auto"
@@ -125,10 +125,7 @@ function resetState() {
                 v-for="platform in platforms"
                 :key="platform.id"
                 class="cursor-pointer transition-all duration-200"
-                :ui="{
-                  body: { padding: 'px-4 py-3 sm:p-4' },
-                  ring: selectedPlatforms.includes(platform.id) ? 'ring-2 ring-primary-500 dark:ring-primary-400' : 'ring-1 ring-gray-200 dark:ring-gray-700',
-                }"
+                :ui="{ body: 'px-4 py-3 sm:p-4' }"
                 @click="() => {
                   const index = selectedPlatforms.indexOf(platform.id)
                   if (index > -1) selectedPlatforms.splice(index, 1)
