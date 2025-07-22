@@ -10,7 +10,7 @@ catalog:
   '@vitejs/plugin-vue': ^6.0.0
   '@vitest/ui': ^3.2.4
   '@vue/test-utils': ^2.4.6
-  eslint: 'catalog:'
+  eslint: ^9.0.0
   fflate: ^0.8.2
   jsdom: ^26.1.0
   nuxt: ^4.0.0

@@ -31,6 +31,7 @@ export default defineNuxtConfig({
 
   ui: {
     fonts: false,
+    colorMode: false,
   },
 
   // Configure for static site generation in Nuxt 4
@@ -98,7 +99,7 @@ export default defineNuxtConfig({
 
   // Color mode configuration
   colorMode: {
-    preference: 'system', // default value of $colorMode.preference
+    preference: 'light', // default value of $colorMode.preference
     fallback: 'light', // fallback value if not system preference found
     hid: 'nuxt-color-mode-script',
     globalName: '__NUXT_COLOR_MODE__',

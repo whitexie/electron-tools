@@ -6,8 +6,10 @@ export default defineAppConfig({
 
   // UI configuration
   ui: {
-    primary: 'blue',
-    gray: 'slate',
+    colors: {
+      primary: 'blue',
+      neutral: 'zinc',
+    },
     notifications: {
       position: 'top-right',
     },
