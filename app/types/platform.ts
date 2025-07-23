@@ -5,6 +5,13 @@
  */
 export type PlatformId = 'windows' | 'macos' | 'linux'
 
+export interface Platform {
+  id: PlatformId
+  name: string
+  description: string
+  icon: string
+}
+
 /**
  * 图标格式配置
  */

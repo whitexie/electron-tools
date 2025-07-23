@@ -183,3 +183,21 @@ export function getFileExtension(filename: string): string {
 export function isSupportedImageType(mimeType: string): boolean {
   return (SUPPORTED_IMAGE_TYPES as readonly string[]).includes(mimeType)
 }
+
+/**
+ * 下载单个文件
+ */
+export function downloadSingleFile(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = filename
+  link.style.display = 'none'
+
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+
+  // 清理URL对象
+  setTimeout(() => URL.revokeObjectURL(url), 100)
+}

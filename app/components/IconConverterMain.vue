@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import type { ConversionResult, Platform } from '~/types'
+import { ConverterResultPrewview } from '#components'
+import { zip } from 'fflate'
+import { computed, reactive, ref } from 'vue'
+import { downloadSingleFile } from '~/utils/file-utils'
+import PlatformConfigure from './PlatformConfigure.vue'
 
 // 定义组件状态
 const step = ref<'upload' | 'configure' | 'download'>('upload')
@@ -8,9 +13,11 @@ const sourceImagePreview = ref<string | null>(null)
 const selectedPlatforms = ref<string[]>([])
 const isConverting = ref(false)
 const conversionError = ref<string | null>(null)
+const conversionResults = reactive<ConversionResult[]>([])
+const { convertImageToIcns } = useIcnsConverter()
 
 // 支持的平台选项
-const platforms = [
+const platforms: Platform[] = [
   { id: 'windows', name: 'Windows', description: '.ico format', icon: 'i-simple-icons-windows11' },
   { id: 'macos', name: 'macOS', description: '.icns format', icon: 'i-simple-icons-apple' },
   { id: 'linux', name: 'Linux', description: '.png set', icon: 'i-simple-icons-linux' },
@@ -47,7 +54,11 @@ async function startConversion() {
   conversionError.value = null
 
   try {
-    await new Promise(resolve => setTimeout(resolve, 1500))
+    if (sourceFile.value) {
+      const result = await convertImageToIcns(sourceFile.value)
+      conversionResults.push(result)
+    }
+
     // 在此添加实际的图标转换逻辑
     step.value = 'download'
   }
@@ -69,6 +80,64 @@ function resetState() {
   sourceImagePreview.value = null
   selectedPlatforms.value = []
   conversionError.value = null
+}
+
+/**
+ * 下载所有转换结果
+ * 如果只有一个平台，直接下载该平台的文件
+ * 如果有多个平台，创建ZIP包下载
+ */
+async function downloadAll() {
+  if (conversionResults.length === 0) {
+    return
+  }
+
+  try {
+    // 如果只有一个平台且只有一个文件，直接下载
+    if (conversionResults.length === 1 && conversionResults[0]?.files.length === 1) {
+      const result = conversionResults[0]
+      const file = result.files[0]
+      if (result && file) {
+        downloadSingleFile(file.blob, file.name)
+        return
+      }
+    }
+
+    // 准备ZIP文件数据
+    const zipFiles: Record<string, Uint8Array> = {}
+
+    // 为每个平台的文件添加到ZIP中
+    for (const result of conversionResults) {
+      if (!result.success)
+        continue
+
+      for (const file of result.files) {
+        // 将文件放在平台文件夹下
+        const filePath = `${result.platform}/${file.name}`
+        // 将Blob转换为Uint8Array
+        const arrayBuffer = await file.blob.arrayBuffer()
+        zipFiles[filePath] = new Uint8Array(arrayBuffer)
+      }
+    }
+
+    // 使用fflate创建ZIP
+    zip(zipFiles, (err, data) => {
+      if (err) {
+        console.error('ZIP创建失败:', err)
+        conversionError.value = 'ZIP文件创建失败，请重试。'
+        return
+      }
+
+      const zipBlob = new Blob([data], { type: 'application/zip' })
+      const filename = `${sourceFile.value?.name?.split('.')[0] || 'icons'}-all-platforms.zip`
+
+      downloadSingleFile(zipBlob, filename)
+    })
+  }
+  catch (error) {
+    console.error('下载失败:', error)
+    conversionError.value = '下载失败，请重试。'
+  }
 }
 </script>
 
@@ -93,120 +162,28 @@ function resetState() {
       </div>
 
       <!-- 步骤 2: 配置 -->
-      <div v-else-if="step === 'configure'" key="configure" class="flex-1 flex flex-col py-8">
-        <div class="text-center mb-8">
-          <h2 class="text-3xl font-bold text-gray-900 dark:text-white">
-            配置您的图标
-          </h2>
-          <p class="mt-2 text-md text-gray-500 dark:text-gray-400">
-            选择目标平台并开始生成。
-          </p>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-start p-4 flex-1">
-          <div class="flex flex-col items-center">
-            <h3 class="font-semibold text-lg mb-4">
-              源图像
-            </h3>
-            <ImagePreview :src="sourceImagePreview!" :alt="sourceFile?.name || ''" />
-            <UButton variant="link" size="sm" class="mt-4" @click="resetState">
-              选择其他图片
-            </UButton>
-          </div>
-          <div>
-            <h3 class="font-semibold text-lg mb-4">
-              选择平台
-            </h3>
-            <div class="space-y-3">
-              <UCard
-                v-for="platform in platforms" :key="platform.id" class="cursor-pointer transition-all duration-200"
-                :ui="{ body: 'px-4 py-3 sm:p-4' }" @click="() => {
-                  const index = selectedPlatforms.indexOf(platform.id)
-                  if (index > -1) selectedPlatforms.splice(index, 1)
-                  else selectedPlatforms.push(platform.id)
-                }"
-              >
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-4">
-                    <UIcon :name="platform.icon" class="w-6 h-6" />
-                    <div>
-                      <p class="font-semibold">
-                        {{ platform.name }}
-                      </p>
-                      <p class="text-sm text-gray-500 dark:text-gray-400">
-                        {{ platform.description }}
-                      </p>
-                    </div>
-                  </div>
-                  <UCheckbox
-                    :model-value="selectedPlatforms.includes(platform.id)"
-                    :ui="{ base: 'pointer-events-none' }"
-                  />
-                </div>
-              </UCard>
-            </div>
-            <UButton
-              :loading="isConverting" :disabled="!canConvert" size="xl" block class="mt-6"
-              @click="startConversion"
-            >
-              {{ isConverting ? '正在转换...' : '生成图标' }}
-            </UButton>
-          </div>
-        </div>
-      </div>
+      <template v-else-if="step === 'configure'">
+        <PlatformConfigure
+          v-model="selectedPlatforms"
+          :is-converting
+          :can-convert
+          :source-image-preview
+          :source-file
+          :platforms
+          @reset-state="resetState"
+          @start-conversion="startConversion"
+        />
+      </template>
 
       <!-- 步骤 3: 下载 -->
-      <div v-else-if="step === 'download'" key="download" class="flex-1 flex flex-col py-8">
-        <div class="flex flex-col items-center justify-center flex-1">
-          <div class="w-20 h-20 flex items-center justify-center bg-green-100 dark:bg-green-900/50 rounded-full">
-            <UIcon name="i-heroicons-check-badge" class="w-12 h-12 text-green-500 dark:text-green-400" />
-          </div>
-          <h2 class="mt-6 text-3xl font-bold text-gray-900 dark:text-white">
-            转换完成！
-          </h2>
-          <p class="mt-2 text-md text-gray-500 dark:text-gray-400 mb-6">
-            您的图标已准备就绪，可以下载了。
-          </p>
-
-          <div class="w-full max-w-md space-y-3">
-            <UButton
-              v-if="selectedPlatforms.includes('windows')" label="下载 Windows 图标 (.ico)" size="lg" block
-              variant="outline" icon="i-simple-icons-windows11"
-            />
-            <UButton
-              v-if="selectedPlatforms.includes('macos')" label="下载 macOS 图标 (.icns)" size="lg" block
-              variant="outline" icon="i-simple-icons-apple"
-            />
-            <UButton
-              v-if="selectedPlatforms.includes('linux')" label="下载 Linux 图标 (.zip)" size="lg" block
-              variant="outline" icon="i-simple-icons-linux"
-            />
-            <UButton
-              v-if="selectedPlatforms.length > 1" label="下载所有平台图标 (.zip)" size="xl" block class="mt-4"
-              icon="i-heroicons-archive-box-arrow-down"
-            />
-          </div>
-
-          <div class="mt-8 w-full max-w-md">
-            <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg dark:bg-blue-900/20 dark:border-blue-800">
-              <div class="flex items-start">
-                <UIcon
-                  name="i-heroicons-information-circle"
-                  class="w-4 h-4 text-blue-600 dark:text-blue-400 mr-2 mt-0.5 flex-shrink-0"
-                />
-                <div class="text-sm text-blue-800 dark:text-blue-300">
-                  <p>
-                    所有文件处理均在浏览器中完成，您的图像不会上传到任何服务器。
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <UButton variant="link" class="mt-6" @click="resetState">
-            创建新的图标
-          </UButton>
-        </div>
-      </div>
+      <template v-else-if="step === 'download'">
+        <ConverterResultPrewview
+          key="download"
+          :selected-platforms
+          @download-all="downloadAll"
+          @reset-state="resetState"
+        />
+      </template>
     </Transition>
   </div>
 </template>
