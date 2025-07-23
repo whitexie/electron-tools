@@ -4,9 +4,15 @@ defineProps<{
 }>()
 
 const emits = defineEmits<{
-  (e: 'downloadAll'): void
+  (e: 'download', platforms: PlatformId | 'all'): void
   (e: 'resetState'): void
 }>()
+
+const buttons = [
+  { id: 'windows', label: '下载 Windows 图标 (.ico)', icon: 'i-simple-icons-windows11' },
+  { id: 'macos', label: '下载 macOS 图标 (.icns)', icon: 'i-simple-icons-apple' },
+  { id: 'linux', label: '下载 Linux 图标 (.zip)', icon: 'i-simple-icons-linux' },
+]
 </script>
 
 <template>
@@ -23,21 +29,20 @@ const emits = defineEmits<{
       </p>
 
       <div class="w-full max-w-md space-y-3">
-        <UButton
-          v-if="selectedPlatforms.includes('windows')" label="下载 Windows 图标 (.ico)" size="lg" block
-          variant="outline" icon="i-simple-icons-windows11"
-        />
-        <UButton
-          v-if="selectedPlatforms.includes('macos')" label="下载 macOS 图标 (.icns)" size="lg" block
-          variant="outline" icon="i-simple-icons-apple"
-        />
-        <UButton
-          v-if="selectedPlatforms.includes('linux')" label="下载 Linux 图标 (.zip)" size="lg" block
-          variant="outline" icon="i-simple-icons-linux"
-        />
+        <template v-for="button in buttons" :key="button.id">
+          <UButton
+            v-if="selectedPlatforms.includes(button.id)"
+            :label="button.label"
+            :icon="button.icon"
+            size="lg"
+            block
+            variant="outline"
+            @click="() => emits('download', button.id as PlatformId)"
+          />
+        </template>
         <UButton
           v-if="selectedPlatforms.length > 1" label="下载所有平台图标 (.zip)" size="xl" block class="mt-4"
-          icon="i-heroicons-archive-box-arrow-down" @click="() => emits('downloadAll')"
+          icon="i-heroicons-archive-box-arrow-down" @click="() => emits('download', 'all')"
         />
       </div>
 

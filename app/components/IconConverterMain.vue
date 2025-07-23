@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { ConversionResult, Platform } from '~/types'
+import type { Platform } from '~/types'
 import { ConverterResultPrewview } from '#components'
 import { zip } from 'fflate'
-import { computed, reactive, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { downloadSingleFile } from '~/utils/file-utils'
 import PlatformConfigure from './PlatformConfigure.vue'
 
@@ -10,11 +10,15 @@ import PlatformConfigure from './PlatformConfigure.vue'
 const step = ref<'upload' | 'configure' | 'download'>('upload')
 const sourceFile = ref<File | null>(null)
 const sourceImagePreview = ref<string | null>(null)
-const selectedPlatforms = ref<string[]>([])
-const isConverting = ref(false)
 const conversionError = ref<string | null>(null)
-const conversionResults = reactive<ConversionResult[]>([])
-const { convertImageToIcns } = useIcnsConverter()
+
+const {
+  isConverting,
+  // pngFiles,
+  selectedPlatforms,
+  conversionResults,
+  startConversion,
+} = useConverter()
 
 // 支持的平台选项
 const platforms: Platform[] = [
@@ -25,6 +29,10 @@ const platforms: Platform[] = [
 
 // 计算属性
 const canConvert = computed(() => selectedPlatforms.value.length > 0 && !isConverting.value)
+
+// const pngsUrl = computed(() => {
+//   return Object.values(pngFiles.value).map(file => URL.createObjectURL(file))
+// })
 
 /**
  * 处理文件上传
@@ -44,34 +52,6 @@ function handleFileUpload(file: File) {
 }
 
 /**
- * 触发图标转换流程
- */
-async function startConversion() {
-  if (!canConvert.value)
-    return
-
-  isConverting.value = true
-  conversionError.value = null
-
-  try {
-    if (sourceFile.value) {
-      const result = await convertImageToIcns(sourceFile.value)
-      conversionResults.push(result)
-    }
-
-    // 在此添加实际的图标转换逻辑
-    step.value = 'download'
-  }
-  catch (error) {
-    conversionError.value = '图标转换失败，请重试。'
-    console.error(error)
-  }
-  finally {
-    isConverting.value = false
-  }
-}
-
-/**
  * 重置所有状态
  */
 function resetState() {
@@ -79,6 +59,7 @@ function resetState() {
   sourceFile.value = null
   sourceImagePreview.value = null
   selectedPlatforms.value = []
+  conversionResults.splice(0, conversionResults.length)
   conversionError.value = null
 }
 
@@ -87,15 +68,15 @@ function resetState() {
  * 如果只有一个平台，直接下载该平台的文件
  * 如果有多个平台，创建ZIP包下载
  */
-async function downloadAll() {
-  if (conversionResults.length === 0) {
+async function downloadPlatformFile(results: ConversionResult[]) {
+  if (results.length === 0) {
     return
   }
 
   try {
     // 如果只有一个平台且只有一个文件，直接下载
-    if (conversionResults.length === 1 && conversionResults[0]?.files.length === 1) {
-      const result = conversionResults[0]
+    if (results.length === 1 && results[0]?.files.length === 1) {
+      const result = results[0]
       const file = result.files[0]
       if (result && file) {
         downloadSingleFile(file.blob, file.name)
@@ -107,7 +88,7 @@ async function downloadAll() {
     const zipFiles: Record<string, Uint8Array> = {}
 
     // 为每个平台的文件添加到ZIP中
-    for (const result of conversionResults) {
+    for (const result of results) {
       if (!result.success)
         continue
 
@@ -139,53 +120,77 @@ async function downloadAll() {
     conversionError.value = '下载失败，请重试。'
   }
 }
+
+function handleDownload(platform: string) {
+  if (platform === 'all') {
+    downloadPlatformFile(conversionResults)
+    return
+  }
+
+  const result = conversionResults.find(result => result.platform === platform)
+  if (result) {
+    downloadPlatformFile([result])
+  }
+}
 </script>
 
 <template>
-  <div>
-    <Transition name="fade" mode="out-in">
-      <!-- 步骤 1: 上传 -->
-      <div v-if="step === 'upload'" key="upload" class="text-center flex-1 flex flex-col justify-center py-8">
-        <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-gray-900 dark:text-white">
-          Electron 图标转换器
-        </h1>
-        <p class="mt-4 text-lg text-gray-600 dark:text-gray-400">
-          轻松将您的图片转换为 Windows, macOS, 和 Linux 应用图标。
-        </p>
-        <div class="max-w-2xl mx-auto mt-10">
-          <FileUploadZone accept="image/png,image/jpeg,image/svg+xml,image/webp" @file-uploaded="handleFileUpload" />
-        </div>
-        <UAlert
-          v-if="conversionError" icon="i-heroicons-x-circle" color="error" variant="soft" :title="conversionError"
-          class="mt-6 max-w-2xl mx-auto"
-        />
+  <Transition name="fade" mode="out-in">
+    <!-- 步骤 1: 上传 -->
+    <div v-if="step === 'upload'" key="upload" class="text-center flex-1 flex flex-col justify-center py-8">
+      <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-gray-900 dark:text-white">
+        Electron 图标转换器
+      </h1>
+      <p class="mt-4 text-lg text-gray-600 dark:text-gray-400">
+        轻松将您的图片转换为 Windows, macOS, 和 Linux 应用图标。
+      </p>
+      <div class="max-w-2xl mx-auto mt-10">
+        <FileUploadZone accept="image/png,image/jpeg,image/svg+xml,image/webp" @file-uploaded="handleFileUpload" />
       </div>
+      <UAlert
+        v-if="conversionError" icon="i-heroicons-x-circle" color="error" variant="soft" :title="conversionError"
+        class="mt-6 max-w-2xl mx-auto"
+      />
+    </div>
 
-      <!-- 步骤 2: 配置 -->
-      <template v-else-if="step === 'configure'">
-        <PlatformConfigure
-          v-model="selectedPlatforms"
-          :is-converting
-          :can-convert
-          :source-image-preview
-          :source-file
-          :platforms
-          @reset-state="resetState"
-          @start-conversion="startConversion"
-        />
-      </template>
+    <!-- 步骤 2: 配置 -->
+    <template v-else-if="step === 'configure'">
+      <PlatformConfigure
+        v-model="selectedPlatforms"
+        :is-converting
+        :can-convert
+        :source-image-preview
+        :source-file
+        :platforms
+        @reset-state="resetState"
+        @start-conversion="async () => {
+          if (sourceFile) {
+            await startConversion(sourceFile)
+            step = 'download'
+          }
+        }"
+      />
+    </template>
 
-      <!-- 步骤 3: 下载 -->
-      <template v-else-if="step === 'download'">
+    <!-- 步骤 3: 下载 -->
+    <template v-else-if="step === 'download'">
+      <div>
+        <!-- <div class="flex flex-wrap">
+          <template v-for="url in pngsUrl" :key="url">
+            <img
+              :src="url" class="object-contain"
+            >
+          </template>
+        </div> -->
         <ConverterResultPrewview
           key="download"
           :selected-platforms
-          @download-all="downloadAll"
+          @download="handleDownload"
           @reset-state="resetState"
         />
-      </template>
-    </Transition>
-  </div>
+      </div>
+    </template>
+  </transition>
 </template>
 
 <style>

@@ -33,9 +33,7 @@ export interface PlatformConfig {
   /** 平台显示名称 */
   name: string
   /** 支持的图标格式 */
-  formats: IconFormat[]
-  /** 是否启用该平台 */
-  enabled: boolean
+  format: IconFormat
 }
 
 /**
