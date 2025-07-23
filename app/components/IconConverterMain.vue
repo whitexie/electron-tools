@@ -30,10 +30,6 @@ const platforms: Platform[] = [
 // 计算属性
 const canConvert = computed(() => selectedPlatforms.value.length > 0 && !isConverting.value)
 
-// const pngsUrl = computed(() => {
-//   return Object.values(pngFiles.value).map(file => URL.createObjectURL(file))
-// })
-
 /**
  * 处理文件上传
  */
@@ -173,23 +169,13 @@ function handleDownload(platform: string) {
     </template>
 
     <!-- 步骤 3: 下载 -->
-    <template v-else-if="step === 'download'">
-      <div>
-        <!-- <div class="flex flex-wrap">
-          <template v-for="url in pngsUrl" :key="url">
-            <img
-              :src="url" class="object-contain"
-            >
-          </template>
-        </div> -->
-        <ConverterResultPrewview
-          key="download"
-          :selected-platforms
-          @download="handleDownload"
-          @reset-state="resetState"
-        />
-      </div>
-    </template>
+    <ConverterResultPrewview
+      v-else-if="step === 'download'"
+      key="download"
+      :selected-platforms
+      @download="handleDownload"
+      @reset-state="resetState"
+    />
   </transition>
 </template>
 

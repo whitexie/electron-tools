@@ -1,8 +1,8 @@
 /**
  * 从源图像生成多尺寸PNG文件
  */
-export async function generateMultiSizePngs(sourceImage: File, sizes: number[]): Promise<Record<number, File>> {
-  const pngFiles: Record<number, File> = {}
+export async function generateMultiSizePngs(sourceImage: File, sizes: number[]): Promise<Map<number, File>> {
+  const pngFileMap: Map<number, File> = new Map()
 
   // 创建图像元素
   const img = new Image()
@@ -50,7 +50,7 @@ export async function generateMultiSizePngs(sourceImage: File, sizes: number[]):
         type: 'image/png',
       })
 
-      pngFiles[size] = file
+      pngFileMap.set(size, file)
 
       ctx.clearRect(0, 0, canvas.width, canvas.height)
     }
@@ -60,5 +60,5 @@ export async function generateMultiSizePngs(sourceImage: File, sizes: number[]):
     canvas.remove()
   }
 
-  return pngFiles
+  return pngFileMap
 }

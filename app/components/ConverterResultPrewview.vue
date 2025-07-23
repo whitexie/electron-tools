@@ -46,7 +46,7 @@ const buttons = [
         />
       </div>
 
-      <div class="mt-8 w-full max-w-md">
+      <div class="mt-8 w-full max-w-min">
         <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg dark:bg-blue-900/20 dark:border-blue-800">
           <div class="flex items-start">
             <UIcon

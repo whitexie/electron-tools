@@ -19,21 +19,18 @@ interface IcoEntry {
  * @returns 转换结果
  */
 export async function convertPngFilesToIco(
-  pngFileMapping: Record<number, File>,
+  pngFileMapping: Map<number, File>,
   filename: string = 'icon',
 ): Promise<ConversionResult> {
   try {
-    const validatedFiles = pngFileMapping
-    if (Object.keys(validatedFiles).length === 0) {
+    if (pngFileMapping.size === 0) {
       throw new Error('没有有效的PNG文件')
     }
 
     // 创建ICO条目
     const entries: IcoEntry[] = []
 
-    for (const [key, file] of Object.entries(validatedFiles)) {
-      const size = Number(key)
-
+    for (const [size, file] of pngFileMapping.entries()) {
       // 验证文件是否为有效的PNG
       const imageData = new Uint8Array(await file.arrayBuffer())
 

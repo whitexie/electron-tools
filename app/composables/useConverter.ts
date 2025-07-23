@@ -5,7 +5,7 @@ import { getPlatformConfig, getPlatformSizes, unique } from '~/utils'
 export function useConverter() {
   const isConverting = ref(false)
   const selectedPlatforms = ref<PlatformId[]>([])
-  const pngFiles = ref<Record<number, File>>({})
+  const pngFiles = ref<Map<number, File>>(new Map())
 
   const conversionResults = reactive<ConversionResult[]>([])
 
@@ -25,27 +25,27 @@ export function useConverter() {
       selectedPlatforms.value.forEach(async (id) => {
         const config = getPlatformConfig(id)
 
-        const files = config.format.sizes.map(size => pngFiles.value[size]!)
+        // key为size
+        const selectedFileMap = new Map<number, File>()
+
+        config.format.sizes.forEach((size) => {
+          selectedFileMap.set(size, _files.get(size)!)
+        })
+
+        const fileList = [...selectedFileMap.values()]
 
         if (config.id === 'macos') {
-          const result = await convertPngFilesToIcns(files)
+          const result = await convertPngFilesToIcns(fileList)
           conversionResults.push(result)
         }
         else if (config.id === 'windows') {
-          const _files: Map<number, File> = new Map()
-          for (const key in pngFiles.value) {
-            const file = pngFiles.value[key]
-            const size = Number(key)
-            _files.set(size, file!)
-          }
-
-          const result = await convertPngFilesToIco(Object.fromEntries(_files))
+          const result = await convertPngFilesToIco(selectedFileMap)
           conversionResults.push(result)
         }
         else {
           conversionResults.push({
             platform: 'linux',
-            files: files.map((blob, index) => {
+            files: fileList.map((blob, index) => {
               const { size, type: format } = blob
               const dimensions = `${config.format.sizes[index]}`
               const name = `${[dimensions, dimensions].join('x')}.png`
