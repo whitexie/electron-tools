@@ -12,57 +12,91 @@ export function useConverter() {
   async function startConversion(sourceImage: File) {
     isConverting.value = true
 
+    // 清空之前的转换结果
+    conversionResults.splice(0)
+
     try {
       const _files = await generatePngFiles(selectedPlatforms.value, sourceImage)
 
       if (!_files) {
-        throw new Error('generate fail')
+        throw new Error('PNG文件生成失败')
       }
 
       pngFiles.value = _files
 
-      // 遍历selectedPlatforms，开始转换成对应的格式图片
-      selectedPlatforms.value.forEach(async (id) => {
-        const config = getPlatformConfig(id)
+      // 并行处理所有平台转换
+      const conversionPromises = selectedPlatforms.value.map(platformId =>
+        convertPlatform(platformId, _files),
+      )
 
-        // key为size
-        const selectedFileMap = new Map<number, File>()
+      const results = await Promise.allSettled(conversionPromises)
 
-        config.format.sizes.forEach((size) => {
-          selectedFileMap.set(size, _files.get(size)!)
-        })
-
-        const fileList = [...selectedFileMap.values()]
-
-        if (config.id === 'macos') {
-          const result = await convertPngFilesToIcns(fileList)
-          conversionResults.push(result)
-        }
-        else if (config.id === 'windows') {
-          const result = await convertPngFilesToIco(selectedFileMap)
-          conversionResults.push(result)
+      // 处理转换结果
+      results.forEach((result, index) => {
+        if (result.status === 'fulfilled') {
+          conversionResults.push(result.value)
         }
         else {
+          console.error(`平台 ${selectedPlatforms.value[index]} 转换失败:`, result.reason)
+          // 添加失败结果
           conversionResults.push({
-            platform: 'linux',
-            files: fileList.map((blob, index) => {
-              const { size, type: format } = blob
-              const dimensions = `${config.format.sizes[index]}`
-              const name = `${[dimensions, dimensions].join('x')}.png`
-
-              return { name, blob, size, format, dimensions }
-            }),
-            success: true,
+            platform: selectedPlatforms.value[index]!,
+            files: [],
+            success: false,
+            error: result.reason?.message || '转换失败',
           })
         }
       })
     }
     catch (e) {
-      console.error(e)
+      console.error('转换过程出错:', e)
       throw e
     }
     finally {
       isConverting.value = false
+    }
+  }
+
+  /**
+   * 转换单个平台的图标
+   */
+  async function convertPlatform(platformId: PlatformId, pngFiles: Map<number, File>): Promise<ConversionResult> {
+    const config = getPlatformConfig(platformId)
+
+    // 构建该平台需要的文件映射
+    const selectedFileMap = new Map<number, File>()
+    config.format.sizes.forEach((size) => {
+      const file = pngFiles.get(size)
+      if (!file) {
+        throw new Error(`缺少尺寸为 ${size}px 的PNG文件`)
+      }
+      selectedFileMap.set(size, file)
+    })
+
+    const fileList = [...selectedFileMap.values()]
+
+    switch (config.id) {
+      case 'macos':
+        return await convertPngFilesToIcns(fileList)
+
+      case 'windows':
+        return await convertPngFilesToIco(selectedFileMap)
+
+      case 'linux':
+        return {
+          platform: 'linux',
+          files: fileList.map((blob, index) => {
+            const { size, type: format } = blob
+            const dimensions = `${config.format.sizes[index]}`
+            const name = `${dimensions}x${dimensions}.png`
+
+            return { name, blob, size, format, dimensions }
+          }),
+          success: true,
+        }
+
+      default:
+        throw new Error(`不支持的平台: ${config.id}`)
     }
   }
 
