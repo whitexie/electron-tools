@@ -43,7 +43,7 @@ export default defineNuxtConfig({
   },
 
   // Enable SSR for static generation
-  ssr: false,
+  ssr: true,
 
   // TypeScript configuration
   typescript: {
@@ -68,20 +68,14 @@ export default defineNuxtConfig({
   },
 
   // Component auto-import configuration
-  components: [
-    {
-      path: '~/components',
-      pathPrefix: false,
-    },
-  ],
+  components: {
+    dirs: [],
+  },
 
   // Auto-import configuration for composables
   imports: {
-    dirs: [
-      'composables',
-      'utils',
-      'types',
-    ],
+    autoImport: false,
+    // scan: false,
   },
 
   // CSS configuration

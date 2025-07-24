@@ -1,3 +1,5 @@
+import type { ConversionResult, PlatformId } from '~/types'
+import { reactive, ref } from 'vue'
 import { convertPngFilesToIcns, generateMultiSizePngs } from '~/converters'
 import { convertPngFilesToIco } from '~/converters/icoGenerator'
 import { getPlatformConfig, getPlatformSizes, unique } from '~/utils'

@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import type { Platform } from '~/types'
-import { ConverterResultPrewview } from '#components'
+import type { ConversionResult, Platform } from '~/types'
 import { zip } from 'fflate'
 import { computed, ref } from 'vue'
+import ConverterResultPrewview from '~/components/ConverterResultPrewview.vue'
+import { useConverter } from '~/composables/useConverter'
 import { downloadSingleFile } from '~/utils/file-utils'
 import PlatformConfigure from './PlatformConfigure.vue'
 

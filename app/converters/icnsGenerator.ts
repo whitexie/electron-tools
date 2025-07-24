@@ -1,3 +1,4 @@
+import type { ConversionResult, GeneratedFile } from '~/types'
 import { getImageSize } from '~/utils'
 
 // ICNS文件头标识

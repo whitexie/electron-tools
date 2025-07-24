@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useColorMode, useHead } from '#imports'
+
 // 设置页面标题和元数据
 useHead({
   title: 'Electron 图标转换器',
@@ -107,10 +109,6 @@ const colorMode = useColorMode()
               <li class="flex items-center space-x-3 text-sm text-gray-600 dark:text-gray-400">
                 <UIcon name="i-heroicons-bolt" class="w-5 h-5 text-yellow-500 flex-shrink-0" />
                 <span>快速高效的图标转换</span>
-              </li>
-              <li class="flex items-center space-x-3 text-sm text-gray-600 dark:text-gray-400">
-                <UIcon name="i-heroicons-device-phone-mobile" class="w-5 h-5 text-blue-500 flex-shrink-0" />
-                <span>响应式设计，支持移动设备</span>
               </li>
               <li class="flex items-center space-x-3 text-sm text-gray-600 dark:text-gray-400">
                 <UIcon name="i-heroicons-sparkles" class="w-5 h-5 text-purple-500 flex-shrink-0" />

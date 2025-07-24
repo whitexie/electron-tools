@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import { useHead } from '#app'
+import { ref } from 'vue'
+import IconConverterMain from '~/components/IconConverterMain.vue'
+
 // 页面特定的元数据
 useHead({
   title: 'Electron 图标转换器 - 一键生成多平台应用图标',

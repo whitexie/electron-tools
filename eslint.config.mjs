@@ -5,13 +5,7 @@ import nuxt from './.nuxt/eslint.config.mjs'
 export default await nuxt(
   antfu(
     {
-      vue: {
-        overrides: {
-          'vue/no-extra-parens': 'off',
-          'vue/multi-word-component-names': 'off',
-        },
-      },
-
+      vue: true,
       typescript: true,
       pnpm: true,
 
@@ -20,7 +14,7 @@ export default await nuxt(
         'no-console': 'warn',
 
         // TypeScript rules
-        '@typescript-eslint/no-explicit-any': 'warn',
+        '@typescript-eslint/no-explicit-any': 'error',
         '@typescript-eslint/ban-ts-comment': 'warn',
       },
     },

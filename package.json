@@ -15,7 +15,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
-    "typecheck": "vue-tsc --noEmit"
+    "typecheck": "vue-tsc -b --noEmit"
   },
   "dependencies": {
     "@nuxt/icon": "catalog:",
@@ -25,7 +25,6 @@
     "fflate": "catalog:",
     "nuxt": "catalog:",
     "tailwindcss": "catalog:",
-    "typescript": "catalog:",
     "vue": "catalog:",
     "vue-router": "catalog:"
   },
@@ -40,6 +39,7 @@
     "eslint": "catalog:",
     "jsdom": "catalog:",
     "nuxt-eslint-auto-explicit-import": "catalog:",
+    "typescript": "catalog:",
     "vitest": "catalog:",
     "vue-tsc": "catalog:"
   }

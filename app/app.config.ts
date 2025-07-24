@@ -1,3 +1,7 @@
+// eslint-disable-next-line ts/ban-ts-comment
+// @ts-nocheck 无法识别#imports
+import { defineAppConfig } from '#imports'
+
 export default defineAppConfig({
   // App metadata
   name: 'Electron Icon Converter',

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, useTemplateRef } from 'vue'
 
 defineProps<{
   accept: string

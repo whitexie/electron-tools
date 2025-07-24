@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { PlatformId } from '~/types'
+
 defineProps<{
   selectedPlatforms: string[]
 }>()
@@ -53,7 +55,7 @@ const buttons = [
               name="i-heroicons-information-circle"
               class="w-4 h-4 text-blue-600 dark:text-blue-400 mr-2 mt-0.5 flex-shrink-0"
             />
-            <div class="text-sm text-blue-800 dark:text-blue-300">
+            <div class="text-sm text-blue-800 dark:text-blue-300 whitespace-nowrap">
               <p>
                 所有文件处理均在浏览器中完成，您的图像不会上传到任何服务器。
               </p>
