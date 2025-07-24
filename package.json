@@ -37,10 +37,12 @@
     "@vitest/ui": "catalog:",
     "@vue/test-utils": "catalog:",
     "eslint": "catalog:",
+    "eslint-plugin-better-tailwindcss": "catalog:",
     "jsdom": "catalog:",
     "nuxt-eslint-auto-explicit-import": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:",
+    "vue-eslint-parser": "catalog:",
     "vue-tsc": "catalog:"
   }
 }
