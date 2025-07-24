@@ -6,7 +6,7 @@ defineProps<{
 }>()
 
 const emit = defineEmits(['fileUploaded'])
-const toast = useToast()
+const { setError } = useAlterError()
 const isDragging = ref(false)
 const fileInputRef = useTemplateRef('file-input')
 
@@ -32,11 +32,7 @@ async function validateImageAndEmit(file: File) {
     emit('fileUploaded', file)
   }
   else {
-    toast.add({
-      title: '请上传正方形的图片',
-      description: '推荐使用1024x1024尺寸的图片',
-      color: 'error',
-    })
+    setError('请上传正方形的图片')
 
     if (fileInputRef.value) {
       fileInputRef.value.value = ''

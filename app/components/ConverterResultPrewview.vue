@@ -1,20 +1,95 @@
 <script setup lang="ts">
-import type { PlatformId } from '~/types'
+import type { ConversionResult } from '~/types'
+import { zip } from 'fflate'
 
-defineProps<{
-  selectedPlatforms: string[]
+const { conversionResults } = defineProps<{
+  conversionResults: ConversionResult[]
 }>()
 
 const emits = defineEmits<{
-  (e: 'download', platforms: PlatformId | 'all'): void
   (e: 'resetState'): void
 }>()
+
+const { setError } = useAlterError()
 
 const buttons = [
   { id: 'windows', label: '下载 Windows 图标 (.ico)', icon: 'i-simple-icons-windows11' },
   { id: 'macos', label: '下载 macOS 图标 (.icns)', icon: 'i-simple-icons-apple' },
   { id: 'linux', label: '下载 Linux 图标 (.zip)', icon: 'i-simple-icons-linux' },
 ]
+
+const selectedPlatforms = computed(() => {
+  return conversionResults.map(item => item.platform)
+})
+
+/**
+ * 下载所有转换结果
+ * 如果只有一个平台，直接下载该平台的文件
+ * 如果有多个平台，创建ZIP包下载
+ */
+async function downloadPlatformFile(results: ConversionResult[]) {
+  if (results.length === 0) {
+    return
+  }
+
+  try {
+    // 如果只有一个平台且只有一个文件，直接下载
+    if (results.length === 1 && results[0]?.files.length === 1) {
+      const result = results[0]
+      const file = result.files[0]
+      if (result && file) {
+        downloadSingleFile(file.blob, file.name)
+        return
+      }
+    }
+
+    // 准备ZIP文件数据
+    const zipFiles: Record<string, Uint8Array> = {}
+
+    // 为每个平台的文件添加到ZIP中
+    for (const result of results) {
+      if (!result.success)
+        continue
+
+      for (const file of result.files) {
+        // 将文件放在平台文件夹下
+        const filePath = `${result.platform}/${file.name}`
+        // 将Blob转换为Uint8Array
+        const arrayBuffer = await file.blob.arrayBuffer()
+        zipFiles[filePath] = new Uint8Array(arrayBuffer)
+      }
+    }
+
+    // 使用fflate创建ZIP
+    zip(zipFiles, (err, data) => {
+      if (err) {
+        console.error('ZIP创建失败:', err)
+        setError('ZIP文件创建失败，请重试。')
+        return
+      }
+
+      const zipBlob = new Blob([data], { type: 'application/zip' })
+      const filename = `${Date.now()}-icons-all-platforms.zip`
+
+      downloadSingleFile(zipBlob, filename)
+    })
+  }
+  catch (error) {
+    console.error('下载失败:', error)
+    setError('下载失败，请重试。')
+  }
+}
+
+function handleDownload(platform: string) {
+  if (platform === 'all') {
+    downloadPlatformFile(conversionResults)
+    return
+  }
+  const result = conversionResults.find(result => result.platform === platform)
+  if (result) {
+    downloadPlatformFile([result])
+  }
+}
 </script>
 
 <template>
@@ -59,14 +134,14 @@ const buttons = [
             size="lg"
             block
             variant="outline"
-            @click="() => emits('download', button.id as PlatformId)"
+            @click="() => handleDownload(button.id)"
           />
         </template>
         <UButton
           v-if="selectedPlatforms.length > 1" label="下载所有平台图标 (.zip)" size="xl" block class="
             mt-4
           "
-          icon="i-heroicons-archive-box-arrow-down" @click="() => emits('download', 'all')"
+          icon="i-heroicons-archive-box-arrow-down" @click="() => handleDownload('all')"
         />
       </div>
 
