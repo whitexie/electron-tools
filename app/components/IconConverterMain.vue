@@ -3,6 +3,8 @@ import type { ConversionResult, Platform } from '~/types'
 import { zip } from 'fflate'
 import { computed, ref } from 'vue'
 import ConverterResultPrewview from '~/components/ConverterResultPrewview.vue'
+import FileUploadZone from '~/components/FileUploadZone.vue'
+
 import { useConverter } from '~/composables/useConverter'
 import { downloadSingleFile } from '~/utils/file-utils'
 import PlatformConfigure from './PlatformConfigure.vue'
@@ -134,19 +136,42 @@ function handleDownload(platform: string) {
 <template>
   <Transition name="fade" mode="out-in">
     <!-- 步骤 1: 上传 -->
-    <div v-if="step === 'upload'" key="upload" class="text-center flex-1 flex flex-col justify-center py-8">
-      <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-gray-900 dark:text-white">
+    <div
+      v-if="step === 'upload'" key="upload" class="
+        flex flex-1 flex-col justify-center py-8 text-center
+      "
+    >
+      <!-- <h1
+        class="
+          text-4xl font-bold tracking-tight text-gray-900
+          md:text-5xl
+          dark:text-white
+        "
+      >
         Electron 图标转换器
-      </h1>
-      <p class="mt-4 text-lg text-gray-600 dark:text-gray-400">
+      </h1> -->
+      <p
+        class="
+          mt-4 text-lg text-gray-600
+          dark:text-gray-400
+        "
+      >
         轻松将您的图片转换为 Windows, macOS, 和 Linux 应用图标。
       </p>
-      <div class="max-w-2xl mx-auto mt-10">
+      <p
+        class="
+          mt-4 text-lg text-gray-600
+          dark:text-gray-400
+        "
+      >
+        建议使用1024x1024尺寸的图片。
+      </p>
+      <div class="mx-auto mt-10 max-w-2xl">
         <FileUploadZone accept="image/png,image/jpeg,image/svg+xml,image/webp" @file-uploaded="handleFileUpload" />
       </div>
       <UAlert
         v-if="conversionError" icon="i-heroicons-x-circle" color="error" variant="soft" :title="conversionError"
-        class="mt-6 max-w-2xl mx-auto"
+        class="mx-auto mt-6 max-w-2xl"
       />
     </div>
 

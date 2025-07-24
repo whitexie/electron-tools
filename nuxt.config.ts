@@ -74,7 +74,7 @@ export default defineNuxtConfig({
 
   // Auto-import configuration for composables
   imports: {
-    autoImport: false,
+    // autoImport: false,
     // scan: false,
   },
 
