@@ -82,24 +82,10 @@ export default defineNuxtConfig({
     '~/assets/css/main.css',
   ],
 
-  // Runtime config for client-side only features
-  runtimeConfig: {
-    public: {
-      appName: 'Electron Icon Converter',
-      version: '1.0.0',
-    },
-  },
-
   // Color mode configuration
   colorMode: {
-    preference: 'light', // default value of $colorMode.preference
-    fallback: 'light', // fallback value if not system preference found
-    hid: 'nuxt-color-mode-script',
-    globalName: '__NUXT_COLOR_MODE__',
-    componentName: 'ColorScheme',
     classPrefix: '',
     classSuffix: '',
-    storageKey: 'nuxt-color-mode',
   },
 
   // UI configuration is now handled in app.config.ts

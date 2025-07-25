@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useColorMode, useHead } from '#imports'
+import ThemePicker from '~/components/ThemePicker.vue'
 
 // 设置页面标题和元数据
 useHead({
@@ -26,9 +26,6 @@ useHead({
     },
   ],
 })
-
-// 颜色模式管理
-const colorMode = useColorMode()
 </script>
 
 <template>
@@ -77,20 +74,8 @@ const colorMode = useColorMode()
 
           <!-- 右侧操作区 -->
           <div class="flex items-center space-x-3">
-            <!-- 主题切换按钮 -->
-            <UButton
-              :icon="colorMode.value === 'dark' ? 'i-heroicons-sun' : 'i-heroicons-moon'"
-              variant="ghost"
-              color="primary"
-              size="md"
-              class="
-                flex h-10 w-10 cursor-pointer items-center justify-center
-                rounded-full border-gray-300 text-gray-700
-                hover:bg-gray-100
-                dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700
-              "
-              @click="colorMode.preference = colorMode.value === 'dark' ? 'light' : 'dark'"
-            />
+            <!-- 主题切换下拉菜单 -->
+            <ThemePicker />
 
             <!-- GitHub 链接 -->
             <UButton
