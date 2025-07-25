@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { ConversionResult } from '~/types'
 import { zip } from 'fflate'
+import { useAlterError } from '~/composables/useAlterError'
+import { downloadSingleFile } from '~/utils'
 
 const { conversionResults } = defineProps<{
   conversionResults: ConversionResult[]

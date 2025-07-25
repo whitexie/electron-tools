@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, useTemplateRef } from 'vue'
+import { useAlterError } from '~/composables/useAlterError'
 
 defineProps<{
   accept: string

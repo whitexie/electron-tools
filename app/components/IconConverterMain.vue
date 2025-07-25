@@ -4,6 +4,7 @@ import { computed, ref } from 'vue'
 import ConverterResultPrewview from '~/components/ConverterResultPrewview.vue'
 import FileUploadZone from '~/components/FileUploadZone.vue'
 
+import { useAlterError } from '~/composables/useAlterError'
 import { useConverter } from '~/composables/useConverter'
 import PlatformConfigure from './PlatformConfigure.vue'
 
@@ -86,7 +87,7 @@ function resetState() {
         >
           建议使用1024x1024尺寸的图片。
         </p>
-        <div class="mx-auto mt-10 max-w-2xl">
+        <div class="mt-10 p-10">
           <FileUploadZone accept="image/png,image/jpeg,image/svg+xml,image/webp" @file-uploaded="handleFileUpload" />
         </div>
       </div>

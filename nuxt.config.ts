@@ -25,7 +25,6 @@ export default defineNuxtConfig({
   eslint: {
     config: {
       standalone: false,
-      autoInit: false,
     },
   },
 
@@ -75,7 +74,7 @@ export default defineNuxtConfig({
   // Auto-import configuration for composables
   imports: {
     // autoImport: false,
-    // scan: false,
+    scan: false,
   },
 
   // CSS configuration
