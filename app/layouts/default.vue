@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { repository } from '~/../package.json'
 import ThemePicker from '~/components/ThemePicker.vue'
 
 // 设置页面标题和元数据
@@ -88,7 +89,7 @@ useHead({
                 hover:bg-gray-100
                 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700
               "
-              to="https://github.com"
+              :to="repository.url"
               target="_blank"
             />
           </div>

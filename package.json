@@ -3,6 +3,13 @@
   "type": "module",
   "private": true,
   "packageManager": "pnpm@10.13.1",
+  "author": {
+    "name": "ysansan",
+    "email": "ysansan.tech@icloud.com"
+  },
+  "repository": {
+    "url": "https://github.com/whitexie/electron-tools"
+  },
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
